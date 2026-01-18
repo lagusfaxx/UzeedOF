@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: uzeed
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - uzeed_db:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/uzeed?schema=public
+      SESSION_SECRET: change_me_please_very_long_secret
+      WEB_ORIGIN: http://localhost:3000
+      SUBSCRIPTION_PRICE_CLP: 5000
+      # Khipu (optional in dev)
+      # KHIPU_API_KEY: ...
+      # KHIPU_RECEIVER_ID: ...
+      # KHIPU_SUBSCRIPTION_NOTIFY_URL: http://localhost:3001/webhooks/khipu/subscription
+      # KHIPU_CHARGE_NOTIFY_URL: http://localhost:3001/webhooks/khipu/charge
+      # KHIPU_RETURN_URL: http://localhost:3000/billing/return
+      # KHIPU_CANCEL_URL: http://localhost:3000/billing/error
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  uzeed_db:

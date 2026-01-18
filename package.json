@@ -1,0 +1,28 @@
+{
+  "name": "uzeed-mvp",
+  "private": true,
+  "packageManager": "pnpm@9.12.3",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "start": "pnpm -r start",
+    "lint": "pnpm -r lint",
+    "format": "prettier -w .",
+    "db:migrate": "pnpm --filter @uzeed/api db:migrate",
+    "db:seed": "pnpm --filter @uzeed/api db:seed"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "eslint": "^9.19.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "@eslint/js": "^9.19.0"
+  }
+}
