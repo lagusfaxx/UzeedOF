@@ -11,9 +11,7 @@
     "dev": "tsup src/index.ts --format esm --watch --out-dir dist --sourcemap --onSuccess \"node --env-file=.env dist/index.js\"",
     "build": "pnpm --filter @uzeed/shared build && tsup src/index.ts --format esm --out-dir dist --sourcemap",
     "start": "node dist/index.js",
-    "lint": "eslint .",
-    "db:migrate": "prisma migrate deploy",
-    "db:seed": "ts-node src/seed.ts"
+    "db:migrate": "pnpm --filter @uzeed/api exec prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
