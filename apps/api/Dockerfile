@@ -1,8 +1,10 @@
 # syntax=docker/dockerfile:1
-FROM node:20-alpine AS base
+
+FROM node:20-slim AS base
 WORKDIR /repo
 
-RUN apk add --no-cache openssl
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+
 RUN corepack enable
 
 # ---------------- deps ----------------
@@ -23,24 +25,20 @@ COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
 
-# 1️⃣ Build shared + api
+# 1️⃣ Build TS → JS
 RUN pnpm --filter @uzeed/api build
 
-# 2️⃣ GENERAR PRISMA CLIENT (OBLIGATORIO)
+# 2️⃣ Generate Prisma Client (QUEDA EN node_modules/.prisma)
 RUN pnpm --filter @uzeed/api prisma generate
 
-# 3️⃣ ⚠️ COPIAR .prisma A NODE_MODULES RAÍZ
-RUN cp -R node_modules/.pnpm/@prisma+client@*/node_modules/.prisma ./node_modules/.prisma
-
-# 4️⃣ Prune a producción
-RUN pnpm prune --prod
+# ⚠️ NO pnpm prune
 
 # ---------------- runner ----------------
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 WORKDIR /repo
 ENV NODE_ENV=production
 
-RUN apk add --no-cache openssl
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /repo/node_modules ./node_modules
 COPY --from=build /repo/packages/shared ./packages/shared
