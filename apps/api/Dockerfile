@@ -25,7 +25,7 @@ COPY apps/api ./apps/api
 COPY prisma ./prisma
 
 # Generate prisma client ANTES de compilar
-RUN pnpm exec prisma generate
+RUN cd apps/api && pnpm exec prisma generate
 
 # Build shared + api
 RUN pnpm --filter @uzeed/api build
