@@ -4,7 +4,6 @@ FROM node:20-slim AS base
 WORKDIR /repo
 
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
-
 RUN corepack enable
 
 # ---------------- deps ----------------
@@ -25,13 +24,11 @@ COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
 
-# 1️⃣ Build TS → JS
+# 1) Build JS
 RUN pnpm --filter @uzeed/api build
 
-# 2️⃣ Generate Prisma Client (QUEDA EN node_modules/.prisma)
+# 2) Generate Prisma Client into prisma/generated/prisma
 RUN pnpm --filter @uzeed/api prisma generate
-
-# ⚠️ NO pnpm prune
 
 # ---------------- runner ----------------
 FROM node:20-slim AS runner
@@ -49,4 +46,3 @@ WORKDIR /repo/apps/api
 EXPOSE 3001
 
 CMD ["node", "dist/index.js"]
-
