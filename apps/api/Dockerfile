@@ -16,9 +16,8 @@ COPY packages/shared/package.json packages/shared/tsconfig.json ./packages/share
 COPY apps/api/package.json apps/api/tsconfig.json ./apps/api/
 COPY prisma ./prisma
 
-# Install deps - allow postinstall scripts to generate Prisma client
-# Use || true to continue even if postinstall fails (Prisma warnings won't stop build)
-RUN pnpm install --no-frozen-lockfile || true
+# Install deps without production env restriction to get devDependencies
+RUN pnpm install --no-frozen-lockfile
 
 FROM deps AS build
 
@@ -27,17 +26,20 @@ COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
 
-# Generate Prisma client explicitly if it wasn't generated during install
-RUN cd apps/api && pnpm exec prisma generate || true
+# Generate Prisma client (must happen after install with devDependencies)
+RUN pnpm exec prisma generate
 
 # Build shared + api
 RUN pnpm --filter @uzeed/api build
+
+# Prune to only runtime dependencies
+RUN pnpm prune --prod
 
 FROM base AS runner
 WORKDIR /repo
 ENV NODE_ENV=production
 
-# Copy runtime artifacts
+# Copy runtime artifacts - including generated Prisma client
 COPY --from=build /repo/node_modules ./node_modules
 COPY --from=build /repo/packages/shared ./packages/shared
 COPY --from=build /repo/apps/api ./apps/api
