@@ -2,47 +2,49 @@
 FROM node:20-alpine AS base
 WORKDIR /repo
 
-# Prisma needs OpenSSL on Alpine
+# Prisma necesita OpenSSL
 RUN apk add --no-cache openssl
 
-# Enable pnpm via Corepack
+# Habilitar pnpm
 RUN corepack enable
 
 # -------------------- deps --------------------
 FROM base AS deps
 
-# Copy only manifests first (no lockfile required)
+# ⚠️ FORZAR devDependencies
+ENV NODE_ENV=development
+
 COPY package.json pnpm-workspace.yaml tsconfig.base.json ./
 COPY packages/shared/package.json packages/shared/tsconfig.json ./packages/shared/
 COPY apps/api/package.json apps/api/tsconfig.json ./apps/api/
 COPY prisma ./prisma
 
-# IMPORTANT: do NOT ignore scripts
 RUN pnpm install --no-frozen-lockfile
 
 # -------------------- build --------------------
 FROM deps AS build
 
-# Copy source
 COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
 
-# 1) Build shared + api (JS only)
+# Build shared + api
 RUN pnpm --filter @uzeed/api build
 
-# 2) Generate Prisma Client (run Prisma CLI from the api workspace)
+# Generar Prisma Client
 RUN pnpm --filter @uzeed/api prisma generate
 
-# 3) Keep only production deps
+# Dejar solo prod deps
 RUN pnpm prune --prod
 
 # -------------------- runner --------------------
-FROM base AS runner
+FROM node:20-alpine AS runner
 WORKDIR /repo
+
 ENV NODE_ENV=production
 
-# Copy runtime artifacts
+RUN apk add --no-cache openssl
+
 COPY --from=build /repo/node_modules ./node_modules
 COPY --from=build /repo/packages/shared ./packages/shared
 COPY --from=build /repo/apps/api ./apps/api
@@ -54,3 +56,4 @@ WORKDIR /repo/apps/api
 EXPOSE 3001
 
 CMD ["node", "dist/index.js"]
+
