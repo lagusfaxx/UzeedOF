@@ -25,7 +25,7 @@ COPY apps/api ./apps/api
 COPY prisma ./prisma
 
 # ✅ 1) GENERAR PRISMA CLIENT PRIMERO
-RUN pnpm --filter @uzeed/api prisma generate
+RUN pnpm --filter @uzeed/api exec prisma generate
 
 # ✅ 2) LUEGO COMPILAR (tsup ya encuentra el path)
 RUN pnpm --filter @uzeed/api build
