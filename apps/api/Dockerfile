@@ -16,8 +16,8 @@ COPY packages/shared/package.json packages/shared/tsconfig.json ./packages/share
 COPY apps/api/package.json apps/api/tsconfig.json ./apps/api/
 COPY prisma ./prisma
 
-# Install deps without production env restriction to get devDependencies
-RUN pnpm install --no-frozen-lockfile
+# Install deps - ignore postinstall scripts that might fail
+RUN pnpm install --no-frozen-lockfile --ignore-scripts
 
 FROM deps AS build
 
@@ -26,7 +26,7 @@ COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
 
-# Generate Prisma client (must happen after install with devDependencies)
+# Generate Prisma client explicitly
 RUN pnpm exec prisma generate
 
 # Build shared + api
