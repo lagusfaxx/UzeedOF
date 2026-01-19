@@ -23,8 +23,16 @@ COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
 
+# 1️⃣ Build shared + api
 RUN pnpm --filter @uzeed/api build
+
+# 2️⃣ GENERAR PRISMA CLIENT (OBLIGATORIO)
 RUN pnpm --filter @uzeed/api prisma generate
+
+# 3️⃣ ⚠️ COPIAR .prisma A NODE_MODULES RAÍZ
+RUN cp -R node_modules/.pnpm/@prisma+client@*/node_modules/.prisma ./node_modules/.prisma
+
+# 4️⃣ Prune a producción
 RUN pnpm prune --prod
 
 # ---------------- runner ----------------
@@ -43,3 +51,4 @@ WORKDIR /repo/apps/api
 EXPOSE 3001
 
 CMD ["node", "dist/index.js"]
+
