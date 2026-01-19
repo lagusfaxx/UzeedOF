@@ -11,7 +11,8 @@
     "dev": "tsup src/index.ts --format esm --watch --out-dir dist --sourcemap --onSuccess \"node --env-file=.env dist/index.js\"",
     "build": "pnpm --filter @uzeed/shared build && tsup src/index.ts --format esm --out-dir dist --sourcemap",
     "start": "node dist/index.js",
-    "db:migrate": "pnpm --filter @uzeed/api exec prisma migrate deploy"
+    "db:migrate": "pnpm --filter @uzeed/api prisma migrate deploy",
+    "db:generate": "pnpm --filter @uzeed/api prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
@@ -26,9 +27,6 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.16",
     "pg": "^8.13.1",
-    "prisma": "^5.20.0",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.3",
     "zod": "^3.24.1"
   },
   "devDependencies": {
@@ -40,6 +38,9 @@
     "@types/nodemailer": "^6.4.17",
     "@types/pg": "^8.11.10",
     "eslint": "^9.19.0",
-    "ts-node": "^10.9.2"
+    "prisma": "^5.20.0",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3"
   }
 }
