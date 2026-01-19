@@ -24,11 +24,11 @@ COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
 
-# 1) Build JS
-RUN pnpm --filter @uzeed/api build
-
-# 2) Generate Prisma Client into prisma/generated/prisma
+# ✅ 1) GENERAR PRISMA CLIENT PRIMERO
 RUN pnpm --filter @uzeed/api prisma generate
+
+# ✅ 2) LUEGO COMPILAR (tsup ya encuentra el path)
+RUN pnpm --filter @uzeed/api build
 
 # ---------------- runner ----------------
 FROM node:20-slim AS runner
