@@ -13,9 +13,9 @@ COPY packages/shared/package.json packages/shared/tsconfig.json ./packages/share
 COPY apps/api/package.json apps/api/tsconfig.json ./apps/api/
 COPY prisma ./prisma
 
-# Install deps for the whole workspace (no frozen lock)
-# --ignore-scripts previene que prisma generate se ejecute aquí
-RUN pnpm install --no-frozen-lockfile --ignore-scripts
+# Install deps for the whole workspace
+# Use NODE_ENV=development to ensure devDependencies are installed
+RUN NODE_ENV=development pnpm install --no-frozen-lockfile
 
 FROM deps AS build
 
@@ -23,9 +23,6 @@ FROM deps AS build
 COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
-
-# Generate prisma client ANTES de compilar
-RUN cd apps/api && pnpm exec prisma generate
 
 # Build shared + api
 RUN pnpm --filter @uzeed/api build
