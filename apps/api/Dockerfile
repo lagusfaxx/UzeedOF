@@ -2,6 +2,9 @@
 FROM node:20-alpine AS base
 WORKDIR /repo
 
+# Install OpenSSL which Prisma needs
+RUN apk add --no-cache openssl
+
 # Enable pnpm via Corepack
 RUN corepack enable
 
@@ -13,9 +16,8 @@ COPY packages/shared/package.json packages/shared/tsconfig.json ./packages/share
 COPY apps/api/package.json apps/api/tsconfig.json ./apps/api/
 COPY prisma ./prisma
 
-# Install deps for the whole workspace
-# Use NODE_ENV=development to ensure devDependencies are installed
-RUN NODE_ENV=development pnpm install --no-frozen-lockfile
+# Install deps - skip scripts to avoid prisma generate failures
+RUN pnpm install --no-frozen-lockfile --ignore-scripts
 
 FROM deps AS build
 
@@ -23,6 +25,9 @@ FROM deps AS build
 COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
+
+# Now generate Prisma client with proper environment
+RUN cd apps/api && pnpm exec prisma generate
 
 # Build shared + api
 RUN pnpm --filter @uzeed/api build
