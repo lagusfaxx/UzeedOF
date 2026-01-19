@@ -17,7 +17,7 @@ COPY packages/shared/package.json packages/shared/tsconfig.json ./packages/share
 COPY apps/api/package.json apps/api/tsconfig.json ./apps/api/
 COPY prisma ./prisma
 
-# IMPORTANT: do NOT ignore scripts (prisma/tooling needs a normal install)
+# IMPORTANT: do NOT ignore scripts
 RUN pnpm install --no-frozen-lockfile
 
 # -------------------- build --------------------
@@ -28,13 +28,13 @@ COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
 
-# Generate Prisma Client (EXPLÍCITO y en workspace correcto)
-RUN pnpm --filter @uzeed/api exec prisma generate
-
-# Build API
+# 1) Build shared + api (JS only)
 RUN pnpm --filter @uzeed/api build
 
-# Prune to only runtime dependencies
+# 2) Generate Prisma Client (run Prisma CLI from the api workspace)
+RUN pnpm --filter @uzeed/api prisma generate
+
+# 3) Keep only production deps
 RUN pnpm prune --prod
 
 # -------------------- runner --------------------
@@ -54,4 +54,3 @@ WORKDIR /repo/apps/api
 EXPOSE 3001
 
 CMD ["node", "dist/index.js"]
-
