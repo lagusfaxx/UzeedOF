@@ -28,7 +28,10 @@ COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
 
-# Build (your build already runs prisma generate inside @uzeed/api)
+# Generate Prisma Client (EXPLÍCITO y en workspace correcto)
+RUN pnpm --filter @uzeed/api exec prisma generate
+
+# Build API
 RUN pnpm --filter @uzeed/api build
 
 # Prune to only runtime dependencies
@@ -51,3 +54,4 @@ WORKDIR /repo/apps/api
 EXPOSE 3001
 
 CMD ["node", "dist/index.js"]
+
