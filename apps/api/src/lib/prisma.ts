@@ -1,14 +1,14 @@
-import prismaPkg from "../../../prisma/generated/prisma/index.js";
+// ESM-safe import for Prisma Client generated into prisma/generated/prisma
+import prismaClientPkg from "../../../prisma/generated/prisma";
 
-const { PrismaClient } = prismaPkg as any;
+const { PrismaClient } = prismaClientPkg as any;
 
 declare global {
   // eslint-disable-next-line no-var
   var __prisma: InstanceType<typeof PrismaClient> | undefined;
 }
 
-export const prisma =
-  globalThis.__prisma ?? new PrismaClient();
+export const prisma = globalThis.__prisma ?? new PrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalThis.__prisma = prisma;
