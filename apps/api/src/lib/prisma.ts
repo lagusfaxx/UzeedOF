@@ -1,4 +1,3 @@
-// ESM-safe import for Prisma Client generated into prisma/generated/prisma
 import prismaClientPkg from "../../../prisma/generated/prisma";
 
 const { PrismaClient } = prismaClientPkg as any;
