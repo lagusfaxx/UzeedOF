@@ -1,5 +1,4 @@
 # syntax=docker/dockerfile:1
-
 FROM node:20-alpine AS base
 WORKDIR /repo
 
@@ -15,7 +14,8 @@ COPY apps/api/package.json apps/api/tsconfig.json ./apps/api/
 COPY prisma ./prisma
 
 # Install deps for the whole workspace (no frozen lock)
-RUN pnpm install --no-frozen-lockfile
+# --ignore-scripts previene que prisma generate se ejecute aquí
+RUN pnpm install --no-frozen-lockfile --ignore-scripts
 
 FROM deps AS build
 
@@ -24,7 +24,10 @@ COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
 
-# Build shared + api and generate prisma client in build stage
+# Generate prisma client ANTES de compilar
+RUN pnpm exec prisma generate
+
+# Build shared + api
 RUN pnpm --filter @uzeed/api build
 
 FROM base AS runner
