@@ -8,11 +8,10 @@
     "schema": "../../prisma/schema.prisma"
   },
   "scripts": {
-    "dev": "tsup src/index.ts --format esm --watch --out-dir dist --sourcemap --onSuccess \"node --env-file=.env dist/index.js\"",
+    "dev": "tsup src/index.ts --format esm --watch --out-dir dist --sourcemap --onSuccess \"node dist/index.js\"",
     "build": "pnpm --filter @uzeed/shared build && tsup src/index.ts --format esm --out-dir dist --sourcemap",
     "start": "node dist/index.js",
-    "db:migrate": "pnpm --filter @uzeed/api prisma migrate deploy",
-    "db:generate": "pnpm --filter @uzeed/api prisma generate"
+    "db:migrate": "prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
@@ -26,21 +25,17 @@
     "express-session": "^1.18.1",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.16",
-    "pg": "^8.13.1",
-    "zod": "^3.24.1"
+    "pg": "^8.13.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.19.0",
-    "@types/cors": "^2.8.17",
+    "prisma": "^5.20.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3",
+    "@types/node": "^22.10.2",
     "@types/express": "^4.17.21",
     "@types/express-session": "^1.18.0",
-    "@types/node": "^22.10.2",
-    "@types/nodemailer": "^6.4.17",
+    "@types/cors": "^2.8.17",
     "@types/pg": "^8.11.10",
-    "eslint": "^9.19.0",
-    "prisma": "^5.20.0",
-    "ts-node": "^10.9.2",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.3"
+    "@types/nodemailer": "^6.4.17"
   }
 }
