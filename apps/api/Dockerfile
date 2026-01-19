@@ -8,6 +8,8 @@ RUN corepack enable
 
 # ---------------- deps ----------------
 FROM base AS deps
+
+# IMPORTANT: force dev deps during build (Coolify passes NODE_ENV=production as ARG)
 ENV NODE_ENV=development
 
 COPY package.json pnpm-workspace.yaml tsconfig.base.json ./
@@ -24,11 +26,11 @@ COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 COPY prisma ./prisma
 
-# ✅ 1) GENERAR PRISMA CLIENT PRIMERO
-RUN pnpm --filter @uzeed/api exec prisma generate
+# 1) generate prisma client (RUN SCRIPT, not exec)
+RUN pnpm --filter @uzeed/api run prisma:generate
 
-# ✅ 2) LUEGO COMPILAR (tsup ya encuentra el path)
-RUN pnpm --filter @uzeed/api build
+# 2) then build
+RUN pnpm --filter @uzeed/api run build
 
 # ---------------- runner ----------------
 FROM node:20-slim AS runner
@@ -46,3 +48,4 @@ WORKDIR /repo/apps/api
 EXPOSE 3001
 
 CMD ["node", "dist/index.js"]
+
